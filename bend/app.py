@@ -21,16 +21,8 @@ db = SQLAlchemy(app) # Initialize SQLAlchemy
 
 
 
-CORS(app, resources={r"/api/*": {"origins": "https://nihilist-kernel.vercel.app/"}})
-@app.after_request
-def add_cors_headers(response):
-    # Ensure the Access-Control-Allow-Origin header is set to your Vercel frontend URL
-    # Or use "*" for development, but specify for production
-    response.headers.add('Access-Control-Allow-Origin', 'https://nihilist-kernel.vercel.app')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE')
-    response.headers.add('Access-Control-Allow-Credentials', 'true') # If you ever use cookies/auth headers
-    return response
+CORS(app, resources={r"/api/*": {"origins": "https://nihilist-kernel.vercel.app"}})
+
 
 class DialogueEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
