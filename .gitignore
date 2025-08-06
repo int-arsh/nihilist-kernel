@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
+
+# Cache files
+*.log
+.cache/
+.vscode/
+
+# IDE files (e.g., PyCharm)
+.idea/
+
+# Your JSON cache file
+cache.json
+
+# Node
+node_modules/
+dist/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE files
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Logs and cache
+npm-debug.log*
+yarn-error.log*
+.parcel-cache
