@@ -136,8 +136,12 @@ button:disabled {
 
   .container {
     /* height: auto; */
-    max-width: 300px;
+    max-width: 350px;
 
+  }
+
+  .center-box {
+    padding: 0;
   }
 }
 
