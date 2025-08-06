@@ -50,9 +50,6 @@ The dialogue should be formatted with each character's name followed by their di
 Example structure:
 Marty: What are you thinking about?
 Rust: The source. Not of the system—of everything.
-
-If the topic "{user_input}" is not related to computer science, programming, or technology, provide a single, haunting response as
-Rust and Marty didn't seek beyond Computers.
 """
 
 
