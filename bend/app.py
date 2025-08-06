@@ -1,9 +1,9 @@
 import os
 from google import genai
-import json
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
+from flask_sqlalchemy import SQLAlchemy
 
 # load env variable
 load_dotenv()
@@ -12,21 +12,26 @@ load_dotenv()
 client = genai.Client()
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
 
-# for cache response new file
-CACHE_FILE = 'cache.json'
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'dialogue_cache.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
 
-def load_cache():
-    if os.path.exists(CACHE_FILE):
-        if os.path.getsize(CACHE_FILE) > 0:
-            with open(CACHE_FILE, 'r') as f:
-                return json.load(f)
-    return {}
+db = SQLAlchemy(app) # Initialize SQLAlchemy
 
-def save_cache(data):
-    with open(CACHE_FILE, 'w') as f:
-        json.dump(data, f, indent=4)
+
+
+CORS(app, resources={r"/api/*": {"origins": "https://nihilist-kernel.vercel.app/"}})
+
+class DialogueEntry(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    input_text = db.Column(db.String(200), unique=True, nullable=False)
+    dialogue_response = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=db.func.now())
+
+    def __repr__(self):
+        return f'<DialogueEntry {self.input_text}>'
+
 
 
 
@@ -53,31 +58,25 @@ Rust and Marty didn't seek beyond Computers.
 @app.route('/api/generate', methods=['POST'])
 def generate_dialogue():
     data = request.get_json()
-    user_input = data.get('userInput', '').strip()
+    user_input = data.get('userInput', '').strip().lower()
 
     if not user_input:
         return jsonify({'error': 'No input provided'}), 400
     
     # chwck in cache
-    cache = load_cache()
-    if user_input.lower() in cache:
-        return jsonify({'dialogue': cache[user_input.lower()]})
+    cached_entry = DialogueEntry.query.filter_by(input_text=user_input).first()
+    if cached_entry:
+        print(f"Returning from SQLite cache for input: {user_input}")
+        return jsonify({'dialogue': cached_entry.dialogue_response})
 
     try:
-        # Generate the prompt for the Gemini API
         prompt = generate_gemini_prompt(user_input)
 
-        # # Create the model instance
-        # model = genai.GenerativeModel('gemini-1.5-flash')
-
-        # Generate content using the crafted prompt
         response = client.models.generate_content(
             model='gemini-2.0-flash',
             contents = prompt
-
         )
         
-        # Extract the dialogue text from the response
         dialogue = response.text
         
         # Some API responses might start with unwanted characters, clean them up
@@ -85,15 +84,21 @@ def generate_dialogue():
             dialogue = dialogue.replace('```', '').strip()
 
         # store cache
-        cache[user_input.lower()] = dialogue
-        save_cache(cache)
+        new_entry = DialogueEntry(input_text=user_input, dialogue_response=dialogue)
+        db.session.add(new_entry)
+        db.session.commit()
+        print(f"Stored new entry in SQLite for input: {user_input}")
 
         return jsonify({'dialogue': dialogue})
 
     except Exception as e:
         print(f"An error occurred: {e}")
+        db.session.rollback() 
         return jsonify({'error': 'Failed to generate dialogue'}), 500
 
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+        print("Database tables created/checked.")
     app.run(port=5000, debug=True)

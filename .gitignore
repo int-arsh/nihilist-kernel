@@ -34,3 +34,5 @@ dist/
 npm-debug.log*
 yarn-error.log*
 .parcel-cache
+
+dialogue_cache.db
