@@ -20,7 +20,7 @@ function App() {
     setDialogue(''); // Clear previous dialogue
 
     try {
-      const response = await fetch('http://localhost:5000/api/generate', {
+      const response = await fetch('https://nihilist-kernel.onrender.com/api/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
