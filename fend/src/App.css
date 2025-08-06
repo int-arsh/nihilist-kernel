@@ -133,6 +133,12 @@ button:disabled {
     min-height: 150px;     
     max-height: 200px;     
   }
+
+  .container {
+    height: auto;
+    max-width: 100%;
+
+  }
 }
 
 
