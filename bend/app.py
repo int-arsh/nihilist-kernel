@@ -8,21 +8,38 @@ from flask_sqlalchemy import SQLAlchemy
 # load env variable
 load_dotenv()
 
-# configure api key
-client = genai.Client()
+api_key = os.getenv("GOOGLE_API_KEY")
+if not api_key:
+    raise RuntimeError("GOOGLE_API_KEY is missing")
+
+client = genai.Client(api_key=api_key)
 
 app = Flask(__name__)
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'dialogue_cache.db')
+data_dir = os.path.join(basedir, "data")
+os.makedirs(data_dir, exist_ok=True)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(data_dir, "dialogue_cache.db")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
 
 db = SQLAlchemy(app) # Initialize SQLAlchemy
 
+raw = os.getenv(
+    "ALLOWED_ORIGINS",
+    "http://localhost:3000,http://127.0.0.1:3000"
+)
 
+parts = raw.split(",")
 
-CORS(app, resources={r"/api/*": {"origins": "https://nihilist-kernel.vercel.app"}})
+allowed_origins = []
 
+for origin in parts:
+    cleaned = origin.strip()
+    if cleaned != "":
+        allowed_origins.append(cleaned)
+
+CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
 
 class DialogueEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -33,7 +50,8 @@ class DialogueEntry(db.Model):
     def __repr__(self):
         return f'<DialogueEntry {self.input_text}>'
 
-
+with app.app_context():
+    db.create_all()
 
 
 def generate_gemini_prompt(user_input):
@@ -93,6 +111,11 @@ def generate_dialogue():
         print(f"An error occurred: {e}")
         db.session.rollback() 
         return jsonify({'error': 'Failed to generate dialogue'}), 500
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}, 200
 
 
 if __name__ == '__main__':

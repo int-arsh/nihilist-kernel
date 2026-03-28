@@ -36,3 +36,37 @@ yarn-error.log*
 .parcel-cache
 
 dialogue_cache.db
+
+
+.gitignore + secrets best practices
+# Secrets / env files
+.env
+.env.*
+!.env.example
+!.env.prod.example
+
+bend/.env
+bend/.env.*
+!bend/.env.dev.example
+
+fend/.env
+fend/.env.*
+!fend/.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.db
+*.log
+.venv/
+venv/
+
+# Node / frontend
+node_modules/
+dist/
+coverage/
+
+# OS / IDE
+.DS_Store
+.vscode/
