@@ -51,6 +51,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: bend/requirements-dev.txt
+
 
       - name: Install dependencies
         run: |
@@ -72,6 +75,15 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: "1.2.5"
+    
+      - name: Cache Bun
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('fend/bun.lock', 'fend/bun.lockb', 'fend/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
 
       - name: Install deps
         working-directory: ./fend
@@ -104,6 +116,9 @@ jobs:
           context: ./bend
           file: ./bend/Dockerfile
           push: true
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+          
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/nihikernel-backend:devo-latest
             ${{ secrets.DOCKERHUB_USERNAME }}/nihikernel-backend:devo-${{ github.sha }}
@@ -131,6 +146,8 @@ jobs:
           context: ./fend
           file: ./fend/Dockerfile
           push: true
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
           build-args: |
             VITE_API_BASE_URL=http://localhost:5000
           tags: |
