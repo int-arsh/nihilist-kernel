@@ -1,0 +1,6 @@
+# Temporary baseline ignores (remove after dependency upgrades)
+CVE-2026-23490
+CVE-2026-30922
+CVE-2025-66418
+CVE-2025-66471
+CVE-2026-21441

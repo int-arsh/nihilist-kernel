@@ -173,7 +173,8 @@ jobs:
           vuln-type: os,library
           severity: CRITICAL,HIGH
           ignore-unfixed: true
-          exit-code: "0"
+          trivyignores: .trivyignore
+          exit-code: "1"
 
   scan-frontend:
     runs-on: ubuntu-latest
@@ -194,4 +195,5 @@ jobs:
           vuln-type: os,library
           severity: CRITICAL,HIGH
           ignore-unfixed: true
-          exit-code: "0"
+          trivyignores: .trivyignore
+          exit-code: "1"
