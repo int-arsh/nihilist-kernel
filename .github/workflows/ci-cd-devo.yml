@@ -176,7 +176,7 @@ jobs:
           vuln-type: os,library
           severity: CRITICAL,HIGH
           ignore-unfixed: true
-          trivyignores: .trivyignore
+          trivyignores: .trivyignore-backend
           exit-code: "1"
 
   scan-frontend:
@@ -201,5 +201,5 @@ jobs:
           vuln-type: os,library
           severity: CRITICAL,HIGH
           ignore-unfixed: true
-          trivyignores: .trivyignore
+          trivyignores: .trivyignore-frontend
           exit-code: "1"
