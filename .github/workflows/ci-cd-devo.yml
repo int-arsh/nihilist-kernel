@@ -159,6 +159,9 @@ jobs:
     needs: [changes, build-push-backend]
     if: github.event_name == 'push' && needs.changes.outputs.backend == 'true'
     steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+
       - name: Login to Docker Hub
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
         with:
@@ -181,6 +184,9 @@ jobs:
     needs: [changes, build-push-frontend]
     if: github.event_name == 'push' && needs.changes.outputs.frontend == 'true'
     steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+
       - name: Login to Docker Hub
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
         with:
