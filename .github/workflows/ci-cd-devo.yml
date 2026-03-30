@@ -15,7 +15,9 @@ on:
       - "fend/**"
       - ".github/workflows/**"
       - "docker-compose*.yml"
-
+permissions:
+  contents: read
+  
 jobs:
   changes:
     runs-on: ubuntu-latest
