@@ -27,7 +27,7 @@ db = SQLAlchemy(app) # Initialize SQLAlchemy
 
 raw = os.getenv(
     "ALLOWED_ORIGINS",
-    "http://localhost:3000,http://127.0.0.1:3000"
+    "http://localhost:3000,http://127.0.0.1:3000,http://192.168.49.2:30080"
 )
 
 parts = raw.split(",")
@@ -39,7 +39,9 @@ for origin in parts:
     if cleaned != "":
         allowed_origins.append(cleaned)
 
-CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
+CORS(app, resources={r"/api/*": {"origins": allowed_origins}},
+    methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],)
 
 class DialogueEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
