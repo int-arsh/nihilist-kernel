@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import OperationalError
 
 # load env variable
 load_dotenv()
@@ -53,7 +54,12 @@ class DialogueEntry(db.Model):
         return f'<DialogueEntry {self.input_text}>'
 
 with app.app_context():
-    db.create_all()
+    try:
+        db.create_all()
+    except OperationalError as e:
+        # SQLite startup race with multiple workers: table already created by another worker
+        if "already exists" not in str(e).lower():
+            raise
 
 
 def generate_gemini_prompt(user_input):
