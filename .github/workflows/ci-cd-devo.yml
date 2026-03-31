@@ -221,7 +221,7 @@ jobs:
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,mode=max,scope=frontend
           build-args: |
-            VITE_API_BASE_URL=http://localhost:5000
+            VITE_API_BASE_URL=http://192.168.49.2:30050
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/nihikernel-frontend:devo-latest
             ${{ secrets.DOCKERHUB_USERNAME }}/nihikernel-frontend:devo-${{ github.sha }}
