@@ -26,3 +26,19 @@ spec:
                   key: GOOGLE_API_KEY
             - name: ALLOWED_ORIGINS
               value: "http://192.168.49.2:30080,http://localhost:3000,http://127.0.0.1:3000"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 3
