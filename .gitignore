@@ -70,3 +70,5 @@ coverage/
 # OS / IDE
 .DS_Store
 .vscode/
+
+backend-secrets.yaml
