@@ -9,7 +9,7 @@ MINIKUBE_IP="${MINIKUBE_IP:-$(minikube ip)}"
 
 BACKEND_IMAGE="docker.io/${DOCKER_USER}/nihikernel-backend:devo-${SHA}"
 FRONTEND_IMAGE="docker.io/${DOCKER_USER}/nihikernel-frontend:devo-${SHA}"
-FRONTEND_API_URL="http://${MINIKUBE_IP}:30050"
+FRONTEND_API_URL="${FRONTEND_API_URL:-http://nihikernel.local}"
 
 echo "Namespace      : ${NS}"
 echo "Tag            : devo-${SHA}"

@@ -29,6 +29,11 @@ spec:
                 configMapKeyRef:
                   name: backend-config
                   key: ALLOWED_ORIGINS
+            - name: DATABASE_PATH
+              value: "/app/data"
+          volumeMounts:
+            - name: db-storage
+              mountPath: /app/data
           resources:
             requests:
               cpu: "100m"
@@ -52,3 +57,7 @@ spec:
             periodSeconds: 20
             timeoutSeconds: 2
             failureThreshold: 3
+      volumes:
+        - name: db-storage
+          persistentVolumeClaim:
+            claimName: nihikernel-pvc

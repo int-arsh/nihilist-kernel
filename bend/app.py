@@ -17,8 +17,12 @@ client = genai.Client(api_key=api_key)
 
 app = Flask(__name__)
 
-basedir = os.path.abspath(os.path.dirname(__file__))
-data_dir = os.path.join(basedir, "data")
+# Use persistent volume path if available, fallback to local data dir
+db_dir = os.getenv("DATABASE_PATH")
+if db_dir:
+    data_dir = db_dir
+else:
+    data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "data")
 os.makedirs(data_dir, exist_ok=True)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(data_dir, "dialogue_cache.db")
