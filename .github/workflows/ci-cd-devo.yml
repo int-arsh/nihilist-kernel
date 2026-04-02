@@ -221,7 +221,7 @@ jobs:
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,mode=max,scope=frontend
           build-args: |
-            VITE_API_BASE_URL=http://192.168.49.2:30050
+            VITE_API_BASE_URL=http://nihikernel.local
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/nihikernel-frontend:devo-latest
             ${{ secrets.DOCKERHUB_USERNAME }}/nihikernel-frontend:devo-${{ github.sha }}
@@ -275,3 +275,52 @@ jobs:
           ignore-unfixed: true
           trivyignores: .trivyignore-frontend
           exit-code: "1"
+
+  # ...existing code...
+  # ...existing code...
+
+  deploy-backend:
+    runs-on: ubuntu-latest
+    needs: [changes, scan-backend]
+    if: github.event_name == 'push' && needs.changes.outputs.backend == 'true'
+    env:
+      NS: nihikernel-dev
+    steps:
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Write kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Deploy backend (immutable SHA)
+        run: |
+          kubectl -n "$NS" set image deployment/backend \
+            backend=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/nihikernel-backend:devo-${{ github.sha }}
+          kubectl -n "$NS" rollout status deployment/backend --timeout=180s
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    needs: [changes, scan-frontend]
+    if: github.event_name == 'push' && needs.changes.outputs.frontend == 'true'
+    env:
+      NS: nihikernel-dev
+    steps:
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Write kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Deploy frontend (immutable SHA)
+        run: |
+          kubectl -n "$NS" set image deployment/frontend \
+            frontend=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/nihikernel-frontend:devo-${{ github.sha }}
+          kubectl -n "$NS" rollout status deployment/frontend --timeout=180s
+
+# ...existing code...
