@@ -1,6 +1,9 @@
 import os
 from google import genai
-from flask import Flask, request, jsonify
+import time
+from flask import Flask, request, jsonify, Response, g
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+
 from flask_cors import CORS
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
@@ -128,6 +131,34 @@ def generate_dialogue():
 @app.get("/health")
 def health():
     return {"status": "ok"}, 200
+
+
+REQUEST_COUNT = Counter(
+    "http_requests_total",
+    "Total HTTP requests",
+    ["method", "path", "status"]
+)
+REQUEST_LATENCY = Histogram(
+    "http_request_duration_seconds",
+    "HTTP request latency",
+    ["method", "path"]
+)
+
+@app.before_request
+def _start_timer():
+    g._start_time = time.time()
+
+@app.after_request
+def _record_metrics(response):
+    path = request.path
+    REQUEST_COUNT.labels(request.method, path, str(response.status_code)).inc()
+    if hasattr(g, "_start_time"):
+        REQUEST_LATENCY.labels(request.method, path).observe(time.time() - g._start_time)
+    return response
+
+@app.route("/metrics", methods=["GET"])
+def metrics():
+    return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
 
 
 if __name__ == '__main__':

@@ -20,6 +20,7 @@ itsdangerous==2.2.0
 Jinja2==3.1.6
 MarkupSafe==3.0.2
 packaging==25.0
+prometheus-client==0.21.1
 pyasn1==0.6.3
 pyasn1_modules==0.4.2
 pydantic==2.11.7
