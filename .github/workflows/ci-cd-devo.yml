@@ -295,8 +295,13 @@ jobs:
         kubectl config use-context minikube
         kubectl -n "$NS" set image deployment/backend \
           backend=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/nihikernel-backend:devo-${{ github.sha }}
-        kubectl -n "$NS" rollout status deployment/backend --timeout=180s
 
+        if ! kubectl -n "$NS" rollout status deployment/backend --timeout=180s; then
+          echo "Backend rollout failed. Rolling back..."
+          kubectl -n "$NS" rollout undo deployment/backend
+          kubectl -n "$NS" rollout status deployment/backend --timeout=180s
+          exit 1
+        fi
   deploy-frontend:
     runs-on: self-hosted
     needs: [changes, scan-frontend]
@@ -307,8 +312,13 @@ jobs:
     - name: Use minikube context
       run: |
         kubectl config use-context minikube
-        kubectl -n "$NS" set image deployment/frontend \
-          frontend=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/nihikernel-frontend:devo-${{ github.sha }}
-        kubectl -n "$NS" rollout status deployment/frontend --timeout=180s
+          kubectl -n "$NS" set image deployment/frontend \
+            frontend=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/nihikernel-frontend:devo-${{ github.sha }}
 
+          if ! kubectl -n "$NS" rollout status deployment/frontend --timeout=180s; then
+            echo "Frontend rollout failed. Rolling back..."
+            kubectl -n "$NS" rollout undo deployment/frontend
+            kubectl -n "$NS" rollout status deployment/frontend --timeout=180s
+            exit 1
+          fi
 # ...existing code...

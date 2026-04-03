@@ -72,3 +72,4 @@ coverage/
 .vscode/
 
 backend-secrets.yaml
+actions-runner
